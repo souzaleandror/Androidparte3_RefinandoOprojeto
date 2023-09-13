@@ -22,7 +22,6 @@ Vamos lá!
 
 @@02
 Atualização do conteúdo
-PRÓXIMA ATIVIDADE
 
 Atualização do conteúdo
 Desde a gravação do curso, houve algumas mudanças em relação ao Android Studio e SDK do Android. O curso, gravado em janeiro de 2019, utilizou a versão 3.2.1 do Android Studio e o SDK 28 do Android.
@@ -54,7 +53,6 @@ https://github.com/alura-cursos/fundamentos-android-parte-3/commit/b118735cbc997
 
 @@03
 Orientações iniciais e organização do curso
-PRÓXIMA ATIVIDADE
 
 Pré-requisitos
 Neste curso, esperamos que você já tenha todo o conhecimento ensinado no segundo curso de fundamentos de Android.
@@ -74,7 +72,6 @@ https://cursos.alura.com.br/course/fundandroid-2
 
 @@04
 Preparando o ambiente - Baixando o projeto inicial
-PRÓXIMA ATIVIDADE
 
 Neste curso continuaremos com o projeto desenvolvido no segundo curso de fundamentos de Android. Caso você tenha feito o projeto, pode continuar com ele sem nenhum problema. Caso contrário, você pode baixar o projeto inicial a abrí-lo no Android Studio.
 Para abrir o projeto a partir do arquivo baixado, faça a extração do zip para um local onde costuma deixar seus projetos.
@@ -177,7 +174,6 @@ Como resultado, concluímos que se quisermos fazer uma lista com layout personal
 
 @@06
 Criando layout personalizado
-PRÓXIMA ATIVIDADE
 
 Crie um layout que vai representar cada aluno na ListView. Para isso, crie um arquivo com o nome item_aluno e implemente um layout que apresenta um aspecto visual similar a este:
 
@@ -323,7 +319,6 @@ A seguir, trabalharemos somente com nossa nova instância e veremos os resultado
 
 @@08
 Implementando métodos do BaseAdapter
-PRÓXIMA ATIVIDADE
 
 Dentro do setAdapter() da ListView, implemente a classe abstrata BaseAdapter como classe anônima. Ela exige a implementação dos seguintes métodos:
 getCount() -> representa a quantidade de elementos do adapter;
@@ -464,7 +459,6 @@ Executaremos novamente. Podemos ver que o layout se comportou como esperado. Mas
 
 @@10
 Implementando Adapter personalizado
-PRÓXIMA ATIVIDADE
 
 Crie o Adapter personalizado para que seja possível migrar do ArrayAdapter para o novo Adapter e manter os comportamentos de antes, como notificar a atualização e remoção de alunos no dataset.
 Para isso, crie a classe ListaAlunosAdapter no pacote br.com.alura.agenda.ui.adapter. Faça extensão da classe BaseAdapter e envie todos os métodos sobrescritos da BaseAdapter que está na ListaAlunosActivity para o adapter.
@@ -632,7 +626,6 @@ Execute, faça um teste editando informações no emulador e veja o resultado es
 
 @@12
 Apresentando informações do aluno na View
-PRÓXIMA ATIVIDADE
 
 Vincule as informações do aluno com a view. Para isso, com o objeto que representa a view criada, busque os TextViews que representam o nome e o telefone do aluno a partir do método findViewById().
 Após buscar as views, busque o aluno contido no dataset a partir da posição recebida via parâmetro do getView(). Então envie o nome e telefone do aluno encontrado nas views que foram buscas respectivamente.
@@ -661,7 +654,6 @@ Neste momento, você pode modificar o layout conforme sua preferência, como mud
 
 @@13
 Sobre a criação de um adapter personalizado
-PRÓXIMA ATIVIDADE
 
 Durante a implementação do adapter personalizado, vimos que é necessário a criação de uma classe nova que faça extensão de BaseAdapter. Por qual motivo existe essa necessidade?
 
@@ -684,9 +676,239 @@ Podemos enviar o adapter apenas via referência do BaseAdapter, a única exigên
 
 @@14
 O que aprendemos?
-PRÓXIMA ATIVIDADE
 
 Nesta aula, aprendemos a:
 Criar layouts personalizados para ListView;
 Migrar de ArrayAdapter para adapter personalizado;
 Implementar Adapter personalizado por meio do BaseAdapter.
+
+#### 13/09/2023
+
+@02-Conhecendo a camada Application
+
+@@01
+Notificando mudança do dataset
+
+Nesta etapa do curso, analisaremos o código implementado e verificaremos a necessidade de aplicar alguma refatoração. Sugerimos que verifique os imports utilizando o atalho "Ctrl + Alt + O" para otimização.
+Em ListaAlunosAdapter.java, as referências não modificadas podem ser declaradas final, como no caso do context que permanece constante:
+
+public class ListaAlunosAdapter extends Base Adapter {
+
+    private final List<Aluno> alunos = new ArrayList<>();
+    private final Context context;
+    // código omitido
+}COPIAR CÓDIGO
+Outras implementações que fizemos como GetCount, GetItem e GetItemId não apresentam necessidade de alteração.
+
+Entretanto, o GetView é mais complexo e podemos extrair alguns métodos como o LayoutInflater por meio do atalho "Ctrl + Alt + M". Uma caixa de diálogo se abre para inserirmos criaView no campo "Name", ou outro comportamento similar que dê a compreensão de que estamos criando uma view para nosso Adapter.
+
+Em seguida, podemos extrair mais comportamentos para continuar a vinculação dos alunos às views.
+
+Selecionando todo o procedimento do TextView nome e acionando o mesmo atalho para extração, indicamos pelo nome vincula.
+
+Você pode também modificar os métodos viewCriada e alunoDevolvido para apenas view e aluno respectivamente, tornando o Get View mais simples por meio do atalho "Shift + F6".
+
+É importante observar que, para adicionarmos os alunos, precisamos limpar a nossa lista primeiro. Este procedimento é denominado de atualizaAlunos dentro da Activity, e utiliza duas chamadas do Adapter: clear() e addAll().
+
+Estes dois comportamentos podem ficar encapsulados direto no Adapter, visto que ambos o atualizam. Para isso, podemos torná-los privados, e outro novo que ficará disponível e responsável por limpar e adicionar alunos, tornando nosso código mais conciso:
+
+private void clear() { alunos.clear(); }
+
+private void addAll(List<Aluno> alunos) { this.alunos.addAll(alunos); }
+
+public void atualiza(List<Alunos> alunos){
+    this.alunos.clear();
+    this.alunos.addAll(alunos);
+}
+
+public void remove(Aluno aluno) { alunos.remove(aluno); }COPIAR CÓDIGO
+Feito isso, podemos apagar os dois primeiros métodos, deixando apenas o atualiza() ativo, já que exerce as mesmas funções. Em Activity, os substituímos pelo novo método para tornar o comportamento ainda mais consistente:
+
+private void atualizaAlunos() {
+    adapter.atualiza(dao.todos());
+}COPIAR CÓDIGO
+Use "Shift + F10" para executar e testar nosso aplicativo. Podemos perceber que a ação de "adicionar" não apresenta problemas enquanto a de "remover" apresenta. Entenderemos o porquê.
+
+Há comportamentos que não solucionados somente na interação com o dataSet, necessitando da notificação para o Adapter, como é neste caso.
+
+Voltando ao ListaAlunosAdapter.java, devemos notificar a modificação no dataSet adicionando notifyDataSetChanged(); ao método remove. É interessante adicionar esta notificação inclusive ao atualiza, evitando futuros erros.
+
+Após isso, podemos executar no emulador novamente e verificar que as ações foram realizadas com sucesso.
+
+Em seguida, veremos outras melhorias que podem ser aplicadas ao nosso projeto.
+
+@@02
+Refatorando o código do adapter
+
+Caso você precise do projeto com todas as alterações realizadas na aula passada, você pode baixá-lo por meio deste link.
+Refatore o código do adapter. Durante o processo, extraia métodos para facilitar a compreensão do código, como também para encapsular comportamentos, como é o caso da atualização do dataset.
+
+Após refatoração, execute o App e veja se mantém o mesmo comportamento de antes, porém, com um código mais simples de ser lido.
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/archive/aula-1.zip
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/commit/ac7a98e49c2fb1db284f8e707eff0b0acd2d465b
+
+@@03
+Entendo a entidade Application
+
+Visualizando nosso projeto no emulador, percebemos nas outras etapas que, ao rotacionar a tela de retrato para paisagem, a lista apresenta a duplicação de alunos a cada rotação.
+Isso ocorre porque inserimos nossos alunos no banco de dados da nossa Activity, que é destruída e volta ao seu estado inicial de criação quando rotacionamos o dispositivo.
+
+Para evitar esse comportamento indesejado, vamos utilizar uma entidade estável muito importante para o sistema operacional Android que mantém o estado global do aplicativo chamada Application, que precede a Activity Launcher apresentada anteriormente.
+
+Nesta tag, estão declaradas as Activities que podem ser vistas em AndroidManifest.xml.
+
+Na criação de um aplicativo, as Activities são mostradas na execução deste. Porém, há um passo anterior que envolve a instância Application criada antes de qualquer outra entidade e seu estado inicial chamado OnCreate().
+
+Se quisermos que alguns membros estáticos sejam executados apenas uma única vez a exemplo da adição de alunos, é nesta etapa que devemos inseri-los.
+
+Agora que sabemos como utilizar esta entidade, faremos a implementação a seguir.
+
+@@04
+Sobre a camada Application
+
+Vimos que a utilização da camada Application é uma alternativa que evita o problema de salvar os alunos de exemplo cada vez que a orientação da tela muda. Por quais motivos a Application funciona?
+
+
+A Application não é destruída ao rotacionar a tela.
+ 
+Exato! A Application é a entidade que mantém o estado global da aplicação, portanto, é a entidade mais estável do App.
+Alternativa correta
+A Application permite configurar a Activity para que chame o onCreate() apenas uma vez.
+ 
+Alternativa correta
+A Application impede a Activity de ser destruída.
+ 
+Alternativa correta
+A Application executa o estado de criação uma única vez.
+ 
+Isso mesmo! A Application é uma entidade que permite a execução de tarefas uma única vez e se mantém estável enquanto o App não é destruído.
+
+@@05
+Implementando a Application
+
+Agora que conhecemos a camada Application, sabemos evitar a questão apresentada na rotação da tela. Daremos início à sua implementação.
+Da mesma forma que fazemos na Activity, partimos de uma classe que fará uma extensão e representará a Application no Android Framework.
+
+Esta entidade é exclusiva. Ou seja, geraremos apenas uma Application para nosso projeto, que pode ser inserida em nosso pacote raiz e não necessariamente em um pacote específico.
+
+Para a criação, use o atalho "Alt + Insert" e clique em "Java Class". No campo "Name", decidimos inserir AgendaApplication para demonstrar a exclusividade dessa configurações para nosso aplicativo.
+
+Agora que temos a classe, faremos a extensão desta forma:
+
+package br.com.alura.agenda;
+
+public class AgendaApplication extends Application {
+}COPIAR CÓDIGO
+Como faremos uma Application personalizada, é necessário registrar no AndroidManifest.xml utilizando o atributo name:
+
+<application
+    android: allowBackup="true"
+    android:icon="@mipmap/ic_laucher"
+    android:label="Agenda"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme"
+    android:name=".AgendaApplication">COPIAR CÓDIGO
+De volta à Application, vamos implementar seu estado de criação e migrar os comportamentos estáticos que queremos da Activity para a nova camada, ficando desta forma:
+
+public class AgendaApplication extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        AlunoDAO dao = new AlunoDAO();
+        dao.salva(new Aluno(nome "Alex", telefone: "1122223333", email: "alex@alura.com.br"));
+        dao.salva(new Aluno(nome "Fran", telefone: "1122223333", email: fran@gmail.com"));
+    }
+
+}COPIAR CÓDIGO
+Podemos simplificar selecionando os comportamentos migrados e extraindo um método privado por meio do atalho "Ctrl + Alt + M", nomeando como "criaAlunosDeTeste" para indicar o que estamos fazendo.
+
+Vamos executar o projeto e analisar se a Application mantém a responsabilidade de executar apenas uma vez.
+
+Conferimos que ao rotacionar, a quantidade de alunos na lista permanece a mesma, demonstrando a utilidade deste procedimento.
+
+Vale lembrar que, se for inserido um comportamento muito demorado na Application, a apresentação da Activity poderá demorar também.
+
+Para testar, vamos inserir Thread.sleep(millis:2000); na Application e executar. Podemos perceber a demora na apresentação, o que prejudica a qualidade do aplicativo.
+
+Portanto, é importante ter consciência do impacto desta camada na execução final do projeto.
+
+@@06
+Criando a Application do projeto
+
+Evite o problema de salvar os alunos cada vez que rotaciona o dispositivo. Para isso, crie a classe AgendaApplication que estenda de Application. Você pode manter no pacote raiz do projeto se preferir (br.com.alura.agenda).
+Em seguida, no arquivo de manifesto, na tag application, faça referência à Application definindo o atributo android:name enviando como valor a AgendaApplication.
+
+Então, sobrescreva o método onCreate() da AgendaApplication e migre todo o código que salva os alunos de exemplo da ListaAlunosActivity para este método.
+
+Rode o App, mude a orientação do dispositivo algumas vezes e veja se é mantida a mesma quantidade de alunos na lista.
+
+Deve ser mantida a mesma quantidade de alunos independentemente da quantidade de rotações realizadas. O código para esta implementação fica da seguinte maneira:
+AndroidManifest.xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="br.com.alura.agenda">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:name=".AgendaApplication">
+        <!-- Activities declaradas -->
+    </application>
+
+</manifest>COPIAR CÓDIGO
+AgendaApplication.java:
+package br.com.alura.agenda;
+
+import android.app.Application;
+
+import br.com.alura.agenda.dao.AlunoDAO;
+import br.com.alura.agenda.model.Aluno;
+
+public class AgendaApplication extends Application {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        criaAlunosDeTeste();
+    }
+
+    private void criaAlunosDeTeste() {
+        AlunoDAO dao = new AlunoDAO();
+        dao.salva(new Aluno("Alex", "1122223333", "alex@alura.com.br"));
+        dao.salva(new Aluno("Fran", "1122223333", "fran@gmail.com"));
+    }
+}COPIAR CÓDIGO
+Na Activity, basicamente não existe mais o código que salva os alunos de exemplo.
+
+@@07
+Sobre cuidados na Application
+
+Durante a implementação da Application, notamos que se não ficarmos atentos, podemos comprometer a experiência do nosso usuário com o nosso App... Qual é esse problema que pode acontecer?
+
+A Application pode bloquear a mudança de orientação da Activity.
+ 
+Alternativa correta
+A Application pode deixar de ser criada, inicializando a Activity launcher diretamente.
+ 
+Alternativa correta
+A Application pode impedir a inicialização da Activity launcher.
+ 
+Exato! Qualquer tarefa que demanda tempo durante a criação da Application afeta o tempo de exibição Activity launcher.
+Alternativa correta
+A Application pode executar novamente o estado de criação.
+
+@@08
+O que aprendemos?
+
+Nesta aula, aprendemos a:
+Refatorar o código do Adapter personalizado;
+Executar rotinas apenas uma única vez com a Application;
+Evitar possíveis problemas com a Application.
