@@ -912,3 +912,192 @@ Nesta aula, aprendemos a:
 Refatorar o código do Adapter personalizado;
 Executar rotinas apenas uma única vez com a Application;
 Evitar possíveis problemas com a Application.
+
+#### 14/09/2023
+
+@03-Implementando caixa Dialog
+
+@@01
+Adicionando o dialog
+
+Outro ponto de melhoria que podemos considerar está relacionado à ação de remover um aluno.
+Para realizar essa ação no aplicativo, devemos pressionar o item desejado e clicar em "remover", eliminando os dados permanentemente.
+
+Devemos considerar uma técnica que confira mais consciência ao usuário ao confirmar ou não esta ação, evitando possíveis erros.
+
+O Android Studio já possui um componente que interage diretamente com o usuário chamado dialog(). Nesta etapa, vamos implementá-lo.
+
+Para entender melhor o funcionamento, faremos sua implementação no onCreate() da ListaAlunosActivity.java a princípio.
+
+Criamos uma nova instância dessa classe base que recebe como dependência um context e podemos apresentá-lo na tela pelo método show():
+
+@Override
+protected void onCreate(@Nullable Bundle savedInstancesState); {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_lista_alunos);
+    setTitle(TITULO_APPBAR);
+    configuraFabNovoAluno();
+    configuraLista();
+    Dialog dialog = new(context:this);
+    dialog.show();
+
+}COPIAR CÓDIGO
+Ao executar o dispositivo, não há uma caixa de diálogo propriamente dita na tela, mas nota-se que esta ficou sombreada.
+
+Isso ocorre porque o comportamento visual padrão dessa nova classe é apresentar uma view sobreposta à da Activity, mudando o foco de interação.
+
+Agora, configuraremos uma mensagem específica e botões de ação para o usuário. Os desenvolvedores da Android disponibilizam outros métodos especialistas que implementam estes comportamentos que desejamos.
+
+Alteraremos a classe base de dialog() e usar a AlertDialog(). Imediatamente, o sistema apresenta um problema que indica a falta de um construtor para esta referência, significando que há um outro padrão a ser usado conhecido como Builder().
+
+Então, ao invés de fazer a instância a partir da própria classe, usamos uma subclasse da AlertDialog() que permite o comportamento de instância.
+
+O sistema utiliza este construtor por ser um padrão de projeto bastante comum para desenvolvedores, permitindo a construção de diversas configurações no momento da criação da instância e realizando chamadas encadeadas.
+
+Com isso em mente, temos a capacidade de inserir os comportamentos desejados, escrevendo null para o argumento listener:
+
+@Override
+protected void onCreate(@Nullable Bundle savedInstancesState); {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_lista_alunos);
+    setTitle(TITULO_APPBAR);
+    configuraFabNovoAluno();
+    configuraLista();
+    new AlertDialog
+        .Builder(context:this)
+        .setTitle("Removendo aluno")
+        .setMessage("Tem certeza que quer remover o aluno?")
+        .setPositiveButton(text:"Sim", listener:null)
+        .setNegativeButton(text:"Não", listener:null)
+        .show();
+}COPIAR CÓDIGO
+Vamos executar e observar o resultado por meio do "Shift + F10". Vemos que a caixa de diálogo é apresentada mas ainda não executa a ação de remover o aluno ao responder positivamente à mensagem.
+
+Vejamos como implementar estes comportamentos a seguir.
+
+@@02
+Implementando o AlertDialog
+PRÓXIMA ATIVIDADE
+
+Caso você precise do projeto com todas as alterações realizadas na aula passada, você pode baixá-lo por meio deste link.
+Implemente o dialog para que o usuário confirme a remoção do aluno. Para isso, no onCreate() faça a instância da classe AlertDialog.Builder() enviando a referência de Context via construtor.
+
+Com acesso ao builder, insira um título, mensagem, botão positivo e negativo para o dialog, chamando os seus setters respectivamente.
+
+Após configurar todos esses detalhes, mostre o dialog chamando o método show(). Teste o App e veja se o dialog aparece conforme o esperado.
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/archive/aula-2.zip
+
+O App deve apresentar o seguinte aspecto visual:
+
+
+O código de implementação fica da seguinte maneira:
+
+ListaAlunosActivity.java:
+@Override
+protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_lista_alunos);
+    setTitle(TITULO_APPBAR);
+    configuraFabNovoAluno();
+    configuraLista();
+    new AlertDialog
+            .Builder(this)
+    .setTitle("Removendo aluno")
+    .setMessage("Tem certeza que quer remover o aluno?")
+    .setPositiveButton("Sim", null)
+    .setNegativeButton("Não", null)
+    .show();
+}COPIAR CÓDIGO
+Agora que aprendemos a criar o dialog, a seguir vamos vinculá-lo com o processo de remoção de aluno.
+
+@@03
+Removendo aluno com o Dialog
+
+@@04
+Aplicando comportamentos no dialog
+PRÓXIMA ATIVIDADE
+
+Migre o código do dialog para dentro do escopo do if que identifica o toque no menu de remover o aluno. Em seguida, como segundo parâmetro do setPositiveButton(), implemente a interface DialogInterface.OnClickListener utilizando a técnica de classe anônima.
+Então migre todo o código que remove o aluno da lista para dentro do método de clique no listener do botão positivo.
+
+Nessa migração, muito provavelmente vai ter um problema de compilação, pois a referência de MenuItem precisa ser final. Apenas aplique o final que volta a compilar.
+Após realizar todas as mudanças, teste o App e veja se ao remover o aluno aparece primeiro o dialog e se ele remove o aluno apenas quando confirma a remoção.
+
+Se tudo estiver certo, refatore o código extraindo todo o código do dialog para um método exclusivo.
+
+
+O código de implementação fica da seguinte maneira:
+
+ListaAlunosActivity.java:
+@Override
+public boolean onContextItemSelected(MenuItem item) {
+
+    int itemId = item.getItemId();
+    if (itemId == R.id.activity_lista_alunos_menu_remover) {
+        confirmaRemocao(item);
+    }
+
+    return super.onContextItemSelected(item);
+}
+
+private void confirmaRemocao(final MenuItem item) {
+    new AlertDialog
+            .Builder(this)
+            .setTitle("Removendo aluno")
+            .setMessage("Tem certeza que quer remover o aluno?")
+            .setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    AdapterView.AdapterContextMenuInfo menuInfo =
+                            (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                    Aluno alunoEscolhido = adapter.getItem(menuInfo.position);
+                    remove(alunoEscolhido);
+                }
+            })
+            .setNegativeButton("Não", null)
+            .show();
+}COPIAR CÓDIGO
+
+@@05
+Sobre a implementação de dialog
+PRÓXIMA ATIVIDADE
+
+Durante a implementação da caixa de diálogo para confirmar a remoção do aluno, utilizamos a classe AlertDialog ao invés da Dialog. Por qual motivo optamos por essa decisão?
+
+Para facilitar o processo de criação de um dialog personalizado.
+ 
+Exato! O objetivo de usar uma classe específica para Dialog é para facilitar a criação. No caso do AlertDialog, temos acesso ao Builder que permite, por exemplo, adicionar um título ou mensagem de forma encadeada durante a criação.
+Alternativa correta
+Porque a classe Dialog não permite configurar um visual personalizado.
+ 
+Somos capazes de configurar o visual da caixa de diálogo em qualquer implementação de Dialog, a diferença é que na classe Dialog não temos a mesma facilidade assim que temos na AlertDialog ou outras classes específicas.
+Alternativa correta
+A classe AlertDialog é mais performática que a Dialog.
+ 
+Não há uma diferença considerável em performance em relação às duas possíveis implementações.
+Alternativa correta
+Porque a classe Dialog é abstrata e exige a implementação de métodos abstratos.
+ 
+A classe Dialog não é abstrata, é apenas uma classe base para manter comportamentos comuns em qualquer Dialog.
+
+@@06
+Para saber mais - Outros Dialogs
+PRÓXIMA ATIVIDADE
+
+Além do AlertDialog existem outras caixas de diálogo comum em Apps Android, como é o caso da DatePickerDialog que permite o usuário escolher uma data ou o TimePickerDialog que permite escolher a hora.
+Para mais detalhes de possibilidades com dialogs, consulte a documentação.
+
+https://developer.android.com/reference/android/app/DatePickerDialog
+
+https://developer.android.com/reference/android/app/TimePickerDialog
+
+https://developer.android.com/guide/topics/ui/dialogs
+
+@@07
+O que aprendemos?
+PRÓXIMA ATIVIDADE
+
+Nesta aula, aprendemos a:
+Necessidade de caixa de diálogo para confirmação;
+Implementação de dialog com AlertDialog.
