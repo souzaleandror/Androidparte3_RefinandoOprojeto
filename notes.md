@@ -977,7 +977,6 @@ Vejamos como implementar estes comportamentos a seguir.
 
 @@02
 Implementando o AlertDialog
-PRÓXIMA ATIVIDADE
 
 Caso você precise do projeto com todas as alterações realizadas na aula passada, você pode baixá-lo por meio deste link.
 Implemente o dialog para que o usuário confirme a remoção do aluno. Para isso, no onCreate() faça a instância da classe AlertDialog.Builder() enviando a referência de Context via construtor.
@@ -1016,7 +1015,6 @@ Removendo aluno com o Dialog
 
 @@04
 Aplicando comportamentos no dialog
-PRÓXIMA ATIVIDADE
 
 Migre o código do dialog para dentro do escopo do if que identifica o toque no menu de remover o aluno. Em seguida, como segundo parâmetro do setPositiveButton(), implemente a interface DialogInterface.OnClickListener utilizando a técnica de classe anônima.
 Então migre todo o código que remove o aluno da lista para dentro do método de clique no listener do botão positivo.
@@ -1061,7 +1059,6 @@ private void confirmaRemocao(final MenuItem item) {
 
 @@05
 Sobre a implementação de dialog
-PRÓXIMA ATIVIDADE
 
 Durante a implementação da caixa de diálogo para confirmar a remoção do aluno, utilizamos a classe AlertDialog ao invés da Dialog. Por qual motivo optamos por essa decisão?
 
@@ -1083,7 +1080,6 @@ A classe Dialog não é abstrata, é apenas uma classe base para manter comporta
 
 @@06
 Para saber mais - Outros Dialogs
-PRÓXIMA ATIVIDADE
 
 Além do AlertDialog existem outras caixas de diálogo comum em Apps Android, como é o caso da DatePickerDialog que permite o usuário escolher uma data ou o TimePickerDialog que permite escolher a hora.
 Para mais detalhes de possibilidades com dialogs, consulte a documentação.
@@ -1096,8 +1092,312 @@ https://developer.android.com/guide/topics/ui/dialogs
 
 @@07
 O que aprendemos?
-PRÓXIMA ATIVIDADE
 
 Nesta aula, aprendemos a:
 Necessidade de caixa de diálogo para confirmação;
 Implementação de dialog com AlertDialog.
+
+#### 15/09/2023
+
+@@01
+Inspecionando o projeto
+
+Quanto mais features adicionamos ao nosso projeto, mais benéfico é ao nosso usuário. Afinal são mais opções de interação com o aplicativo, tornando-o mais atraente.
+Mas quanto mais recursos existem, maior é a quantidade de códigos, análises e manutenções necessárias.
+
+IntelliJ IDEA é a base que foi integrada ao Android Studio, e que analisa tanto o código fonte quanto as peculiaridades do Android Framework através de uma técnica disponível que facilita nosso processo visando uma maior qualidade do aplicativo: O Inspetor de Código.
+
+Para utilizar essa ferramenta e acessar qualquer comportamento dessa base, usamos o atalho "Ctrl + Shift + A", também conhecido como find action, apresentado aqui como "Enter action" ou "option name".
+
+Nessa busca, podemos realizar diversas funções como limpa o projeto, fazer rebuild, buscar arquivos entre outras. Temos um curso específico na Alura que apresenta as funcionalidades da ferramenta que vale a pena conferir.
+
+Aqui, escrevemos "Inspect Code" no campo de busca e selecionamos a primeira opção.
+
+Na caixa de diálogo, escolhemos qual o escopo que será inspecionado. O padrão é a inspeção geral do projeto, que é recomendada para iniciantes com um projeto mais simples, como é o nosso caso.
+
+Clicamos em "OK" e observamos a ferramenta em ação. Ao terminar, uma aba de nome "Inspection Results" se abre e podemos ver três tópicos: Android que representa todas as melhorias para o sistema, Java que analisa possíveis reparos para os códigos, e Spelling que notifica erros ortográficos.
+
+Focamos aqui nos dois primeiros tópicos, pois há uma atividade nesse curso que demonstra como inspecionar o Spelling.
+
+Clicando em Android, vemos várias opções. Lint é uma ferramenta específica para o Android que atende os aspectos comuns nos aplicativos desse sistema.
+
+Na documentação do Guia do Usuário do Android Studio há uma explicação mais completa sobre suas funções, e aqui focaremos nos pontos de atuação do Lint: Correctness, Usability, Security, Accessibility, Performance e I18n (Internationalization).
+
+Voltando aos resultados da inspeção, podemos ver que a ferramenta indicou questões de Internationalization, Security e Usability.
+
+Em seguida, focaremos na resolução dos detalhes apresentados.
+
+@@02
+Para saber mais - Resultados do inspetor de código
+
+Caso você precise do projeto com todas as alterações realizadas na aula passada, você pode baixá-lo por meio deste link.
+Durante a aula foram apresentados alguns tópicos como resultado do inspetor de código. Porém, é muito comum que o resultado varie com base na implementação, portanto, se no seu projeto foram apresentados resultados diferentes, a princípio isso não indica um grande problema.
+
+Um exemplo curioso está na implementação do adapter personalizado. Caso o código de inflar o layout esteja diretamente dentro do getView() ele alarma sobre o problema de performance.
+
+Porém, se for mantido dentro de um método (assim como fizemos no criaView()) esse problema não é apontado. A princípio parece uma solução, mas apenas encapsulamos o código sem resolver o real problema.
+
+Caso surja esse problema (em específico sobre o uso do ViewHolder) e você tenha interesse na solução, temos um post no blog da Alura explicando o problema e como pode ser solucionado.
+
+É muito importante notar que o resultado de inspeção depende também da versão do Android Studio ou SDK do Android, portanto, não foque apenas nos tópicos apresentados durante o curso, foque em como você pode usar o inspetor e como você pode resolver tópicos de uma maneira genérica.
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/archive/aula-3.zip
+
+http://blog.alura.com.br/utilizando-o-padrao-viewholder/?_gl=1*sji0ip*_ga*MTgwMzIzMjk2Ni4xNjg4ODE5OTcz*_ga_1EPWSW3PCS*MTY5NDgwNzgyNi40MS4xLjE2OTQ4MDkwMzYuMC4wLjA.*_fplc*Z1BENWh1NlRXZURkUGd0SSUyQlZkc0VJYkIzMm4yT3V3bVhYN1U1b29uZVFRcklvaHh5YXdXUmlZdTBNY0trY0lrdSUyRk43UWszRURqTFFVTTJ4TU14SUdUUWpVcURKdWxZSlFvU2Vldm9KMnolMkJkeGNQOGJMclhZSTJYciUyRmFyVGclM0QlM0Q.
+
+@@03
+Melhorando o projeto com o inspetor
+
+Nessa etapa, resolveremos o tópico de Segurança apresentado no Inspetor de Código.
+Utilizaremos a mesma abordagem da questão "Hardcodedtext" nos arquivos apresentados.
+
+Clicando em "Security" e depois em "AllowBackup/FullBackupContent Problems", podemos ver as informações sobre essa técnica habilitada por padrão que permite ao usuário copiar os dados contidos no aplicativo. Isso é possível através da ferramenta chamada debug que vasculha o aplicativo.
+
+Aqui, usamos a adb backup e adb restore para acessar nossos dispositivos e recuperar os dados.
+
+A partir da API 23 - nosso Android 6 ou Android Nougat - quando habilitamos o AllowBackup o sistema realiza um autobackup. Ou seja, os dados são salvos automaticamente e resgatados quando o aplicativo é reinstalado.
+
+Para isso, existem algumas recomendações apresentadas justamente pelo Lint no feedback.
+
+Podemos criar o arquivo fullBackupContent para definir como será feito o autobackup de segurança ou denominar essa parte como falsa.
+
+Para exemplificar esta segunda resolução, clicamos em AndroidManifest.xml e vamos direto ao arquivo novamente, trocando "true" por "false" na sentença em evidência.
+
+Executamos o Inspetor novamente para ver que este tópico desapareceu, já que o backup não acontece mais automaticamente.
+
+Outra forma de resolver é, retornando ao arquivo com alerta, selecionar a opção Supress para ignorar conscientemente a abordagem do Inspetor, adicionando ignore="AllowBackup" à esta parte do nosso código.
+
+Agora, lidaremos com as questões de Usability apresentadas.
+
+O tópico "Missing support for Firebas App Indexing" indica a técnica que torna nosso aplicativo indexável pelo Google, melhorando a experiência do usuário. Como nosso projeto ainda não foi publicado, suprimiremos esta abordagem também da mesma forma.
+
+@@04
+Resolvendo o tópico de internacionalização
+
+Rode o inspetor de código para todo o projeto e aguarde a apresentação do resultado de inspeção.
+Muito provavelmente o tópico Internationalization foi apontado no resultado do inspetor de código.
+
+O problema está relacionado no uso de Hardcoded text. Para resolver, migre as strings soltas para o arquivo strings.xml do diretório res.
+
+Você pode usar o atalho Alt + Enter para que o Android Studio apresente a opção para extrair a String.
+Após extrair as strings de todos os arquivos apontados, rode o inspetor novamente e veja se o tópico de internacionalização é resolvido
+
+O tópico de internacionalização não deve aparecer mais. Considerando que as mudanças são feitas em vários arquivos, decidi apresentar a resposta neste commit que mostra detalhadamente as mudanças.
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/commit/e430724e4fee317c0a689b27301eeaa08c4ef16b
+
+@@05
+Para saber mais - Traduzindo o App
+
+Durante a resolução do tópico de internacionalização, aprendemos que a extração de Hardcoded text para resources de string permite que o App seja traduzido para outras linguagens. Porém, essa tradução não é feita de maneira automática!
+Para que isso seja possível, é necessário realizar uma configuração a mais de acordo com as linguagens que o App dará suporte. Caso tenha interesse em implementar essa feature para o App, confira as orientações apresentadas na documentação.
+
+https://developer.android.com/studio/write/translations-editor
+
+@@06
+Suprimindo problemas
+
+Nessa etapa, resolveremos o tópico de Segurança apresentado no Inspetor de Código.
+Utilizaremos a mesma abordagem da questão "Hardcodedtext" nos arquivos apresentados.
+
+Clicando em "Security" e depois em "AllowBackup/FullBackupContent Problems", podemos ver as informações sobre essa técnica habilitada por padrão que permite ao usuário copiar os dados contidos no aplicativo. Isso é possível através da ferramenta chamada debug que vasculha o aplicativo.
+
+Aqui, usamos a adb backup e adb restore para acessar nossos dispositivos e recuperar os dados.
+
+A partir da API 23 - nosso Android 6 ou Android Nougat - quando habilitamos o AllowBackup o sistema realiza um autobackup. Ou seja, os dados são salvos automaticamente e resgatados quando o aplicativo é reinstalado.
+
+Para isso, existem algumas recomendações apresentadas justamente pelo Lint no feedback.
+
+Podemos criar o arquivo fullBackupContent para definir como será feito o autobackup de segurança ou denominar essa parte como falsa.
+
+Para exemplificar esta segunda resolução, clicamos em AndroidManifest.xml e vamos direto ao arquivo novamente, trocando "true" por "false" na sentença em evidência.
+
+Executamos o Inspetor novamente para ver que este tópico desapareceu, já que o backup não acontece mais automaticamente.
+
+Outra forma de resolver é, retornando ao arquivo com alerta, selecionar a opção Supress para ignorar conscientemente a abordagem do Inspetor, adicionando ignore="AllowBackup" à esta parte do nosso código.
+
+Agora, lidaremos com as questões de Usability apresentadas.
+
+O tópico "Missing support for Firebas App Indexing" indica a técnica que torna nosso aplicativo indexável pelo Google, melhorando a experiência do usuário. Como nosso projeto ainda não foi publicado, suprimiremos esta abordagem também da mesma forma.
+
+@@07
+Solucionando a inspeção de usabilidade
+
+No tópico de usabilidade, o Inspetor alarmou o uso do Autofill, um framework que permite o preenchimento automático de informações e foi introduzido na API 26, conhecida como Android 8 ou Android Oreo.
+Temos então algum tipo de editor de texto dentro do aplicativo que não deu suporte à esta técnica.
+
+Clicando em activity_formulario_aluno.xml, analisamos cada situação para dar a solução desejada de acordo com as opções recomendadas no feedback. Podemos não dar importância ao autopreenchimento, configurar este comportamento ou suprimir.
+
+Dado que nosso aplicativo possui formulários genéricos para serem preenchidos por dados distintos e não por informações do próprio usuário, não faz sentido aplicar esta técnica. Portanto, selecionamos a primeira recomendação deimportantForAutofill="no".
+
+Vamos executar o Inspetor novamente.
+
+Percebemos uma nova abordagem, o Correctness. Nesta, o tópico "Attribute unused on older versions" aparece porque estamos dando suporte a uma versão mínima e inferior à que introduz o Autofill, causando problemas. Basta entrar na configuração build.gradle (Module: app) para conferir a minSdkVersion 19.
+
+Para facilitar nosso trabalho nesse caso, recomendamos a alternativa oferecida pelo feedback de suprimir, clicando "Supress With tools: targetApi Attribute" para ambos os alarmes apresentados deste tópico.
+
+Executando o Inspetor mais uma vez, vemos que não há mais problemas em Android.
+
+A seguir, nos dedicaremos às questões do código Java.
+
+@@08
+Resolvendo tópico de segurança
+
+Resolva o tópico Security, para isso você tem as seguintes alternativas:
+Suprimir o alerta para que o inspetor não indique mais o ponto de melhoria, ou então, gerar o arquivo backup_descripor.xml no diretório res/xml/. Inclusive o botão Generate full-backup-content descriptor já cria o arquivo no local certo.
+
+Caso tenha interesse em saber mais sobre o auto backup a partir da versão 23 da API do Android, consulte a documentação.
+
+https://developer.android.com/guide/topics/data/autobackup
+
+Durante o vídeo foi utilizada a técnica de suprimir com o tools:ignore para o AllowBackup, dessa forma, o lint deixa de notificar esse alerta para o auto backup. O código ficou da seguinte maneira:
+AndroidManifest.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="br.com.alura.agenda">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:name=".AgendaApplication"
+        tools:ignore="AllowBackup">
+        <!-- Activities -->
+    </application>
+
+</manifest>
+
+@@09
+Resolvendo o tópico de usabilidade
+
+Resolva o tópico Usability. Este tópico mantém 2 subtópicos:
+Missing support for Firebase App Indexing;
+Use Autofill.
+O primeiro tópico pode ser suprimido, pois é uma feature que vale a pena para Apps publicados. Caso tenha interesse em saber mais, confira a documentação.
+
+O segundo tópico é sobre o uso framework Autofill ou preenchimento automático.
+
+Considerando que o nosso formulário pode receber informações distintas, a utilização do preenchimento automático não faz sentido, sendo assim, temos duas alternativas:
+
+Suprimir o alerta;
+Indicar para o autofill que os campos de textos não vão utilizar o preenchimento automático.
+Para suprimir o alerta, basta apenas utilizar o tools:ignore="Autofill". Caso opte pela indicação para não usar o preenchimento automático, utilize o atributo android:importantForAutofill="no".
+
+Para casos em que foi utilizado qualquer atributo do Autofill
+Ao utilizar o android:importantForAutofill ou qualquer atributo destinado ao Autofill o inspetor alarma outro problema sobre Correctness ou correção/exatidão.
+
+O motivo é pelo fato de usar um atributo que está disponível para versões do Android a partir da 26 (Android 8) ou mais recente, sendo que o projeto dá suporte para versões entre a 19 (Android 4.4) e 28 (Android 9).
+
+Em outras palavras, o projeto vai funcionar da mesma maneira em todas as versões que suportamos, a diferença é que o Autofill só vai funcionar nas APIs 26 ou mais recente, por isso temos o alerta.
+
+Para evitar esse segundo alerta, temos duas alternativas:
+
+Suprimir atributos de uma API específica com o tools:targetApi="letra_da_versao_ou;_numero_da_api";
+Criar um layout específico para a API 26.
+Dentre as opções, suprimir tende ser preferível, pois evita a complexidade de manter múltiplos layouts.
+
+Faça a modificação que preferir para todos os EditTexts, rode novamente o inspetor e veja se o tópico de usabilidade desaparece.
+
+https://developer.android.com/studio/write/app-link-indexing
+
+https://developer.android.com/guide/topics/text/autofill
+
+Durante o vídeo foi escolhida a abordagem que indica o não uso do preenchimento automático, o código do layout ficou da seguinte maneira:
+activity_formulario_aluno.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/activity_formulario_aluno_nome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:hint="@string/nome"
+            android:inputType="textCapWords"
+            android:importantForAutofill="no"
+            tools:targetApi="o" />
+
+        <EditText
+            android:id="@+id/activity_formulario_aluno_telefone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:hint="@string/telefone"
+            android:inputType="phone"
+            android:importantForAutofill="no"
+            tools:targetApi="o" />
+
+        <EditText
+            android:id="@+id/activity_formulario_aluno_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:hint="@string/email"
+            android:inputType="textEmailAddress"
+            android:importantForAutofill="no"
+            tools:targetApi="o" />
+
+    </LinearLayout>
+
+</ScrollView>COPIAR CÓDIGO
+Agora todos os tópicos de Android foram solucionados.
+
+@@10
+Para saber mais - Possibilidades com o Autofill
+
+Vimos que o Autofill é um framework que traz grandes benefícios para o usuário, principalmente para formulários de dados pessoais.
+Se você tem interesse na utilização do mesmo, é importante notar que algumas configurações fazem diferença, como por exemplo a dica de preenchimento automático por meio do atributo android:autofillHints.
+
+Por meio da dica, indicamos ao Autofill qual é a entrada esperada, como por exemplo, para um nome, colocamos o valor name:
+
+<EditText
+    android:id="@+id/activity_formulario_aluno_nome"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:autofillHints="name"
+    android:hint="@string/nome"
+    android:inputType="textCapWords" />COPIAR CÓDIGO
+Dessa forma, o framework verifica se existe algum campo que atenda essa chave (valores possíveis para nome) e preenche ou sugere as opções disponíveis.
+
+Caso tenha interesse em conhecer mais possibilidades do autofill no Android, consulte a documentação da classe View e procure pelas constantes AUTOFILL_HINT, como por exemplo a AUTOFILL_HINT_NAME, nela percebemos que o Constant Value tem o valor "name" que é o possível valor que indicamos para o nome do usuário.
+
+@@11
+Para saber mais - Utilização de dicionário pt-br
+
+Nos resultados apresentados pelo inspetor de código, vimos que o tópico de Spelling foi ignorado pelo fato do código ser escrito em pt-br (Português do Brasil) e o Android Studio ter a configuração padrão em Inglês.
+Caso tenha interesse configurar o suporte para outras linguagens, você pode adicionar manualmente um dicionário.
+
+Para isso, baixe o dicionário da linguagem desejada, como por exemplo o Portuguese (BR) para pt-br. Extraia para um local fácil de acessar.
+
+Então, por meio do Find Action (Ctrl + Shift + A) busque pela opção Dictionaries. Então, logo abaixo da seção Custom Dictionaries clique no botão positivo verde e busque o arquivo que tenha a extensão .dic de acordo com a linguagem que baixou. (pt-br está como br.dic).
+
+Clique em Ok, confira se o dicionário aparece na seção Custom Dictionaries:
+
+No meu caso o arquivo está em /home/alexf/Downloads/br.dic. Ao rodar o inspetor, além de dar suporte para Inglês, o Spelling vai verificar também se a palavra se encaixa em pt-br.
+
+http://www.winedt.org/dictASCII.html
+
+http://www.winedt.org/dictASCII/br.zip
+
+@@12
+O que aprendemos?
+
+Nesta aula, aprendemos a:
+Utilizar o inspetor de código do Android Studio;
+Como funciona a inspeção do lint;
+Resolver tópicos do Android;
+Suprimir alertas.
