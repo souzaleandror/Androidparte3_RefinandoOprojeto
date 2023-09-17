@@ -1401,3 +1401,335 @@ Utilizar o inspetor de código do Android Studio;
 Como funciona a inspeção do lint;
 Resolver tópicos do Android;
 Suprimir alertas.
+
+#### 17/09/2023
+
+@05-Refatorando o código Java
+
+@@01
+Resolvendo inspeção de código Java
+
+Ao clicar em "Java" no Inspetor de Código, aparecem os dois subtópicos com problemas.
+O "Declaration access can be weaker" indica que campos, métodos ou classes que estão públicos poderiam ser restritos e indicados como protected ou private, evitando acesso desnecessário.
+
+É importante analisar cada questão Java antes de tomar a decisão sugerida. No caso de AgendaApplication, se aceitarmos a sugestão de "Make class package-private", aparecerá novamente um problema de Android ao refazer a inspeção. Portanto, vamos apenas suprimir esta classe.
+
+Em ConstantesActivities já não há a necessidade de acesso público, então vamos seguir a orientação de "Make interface package-private". A constante ListaAlunosActivity também pode ser privada. Repetimos a operação.
+
+Executaremos o Inspetor novamente e atestar as resoluções. Um novo subtópico aparece: "Java language level migration aids".
+
+Mas primeiro, analisaremos os "Imports" que apresentam erros.
+
+Neste caso, podemos remover todas as declarações da mesma forma que o atalho de otimização "Ctrl + Alt + O" realiza, clicando em "Delete unnecessary import". Repetiremos a operação após a execução do Inspetor acusar novas questões de "Imports".
+
+Retornando ao "Java language level migration aids", vemos que as classes anônimas que declaramos podem ser substituídas por expressão lambda. Para entender melhor sobre esta técnica, recomendamos o curso de Java 8.
+
+Clicamos em "Replace with lambda" para resumir a chamada tornando-a mais direta com suas peculiaridades.
+
+Por padrão, quando estamos em um projeto Android, damos suporte ao Java 7 por enquanto. Ou seja, quando fazemos a migração desta maneira, nosso código pára de compilar.
+
+A seguir, veremos como utilizar o Java 8 no Android.
+
+@@02
+Resolvendo o tópico de Java
+
+Caso você precise do projeto com todas as alterações realizadas na aula passada, você pode baixá-lo por meio deste link.
+Resolva o tópico Java que tem o objetivo de refatorar o código fonte.
+
+Dependendo de como você desenvolveu o seu projeto, talvez apareçam alertas de Java que diferem com os que foram visto em aula, como também, existe a situação que não aparece nenhum alerta.
+Na aula tivemos os seguintes tópicos:
+
+Declaration redundancy;
+Imports.
+Na declaration redundancy, temos o subtópico Declaration access can be weaker que indica que o membro identificado pode diminuir o modificador de acesso.
+
+No geral, todas as sugestões podem ser aceitas, porém, no caso o alerta para a classe da Application apareça, suprima o alerta, pois o Android Framework exige a declaração de uma classe pública.
+
+No imports, aceite todas as sugestões, pois ele remove todos os imports que não estão sendo utilizados.
+
+Após resolver todos os tópicos, execute o inspetor novamente e veja se os 2 tópicos foram solucionados.
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/archive/aula-4.zip
+
+Considerando que houveram muitas mudanças, confira detalhadamente o que mudou por meio deste commit.
+É válido notar que neste commit é apresentada uma modificação no listener do dialog para usar a expressão lambda introduzida no Java 8.
+
+Você não precisa adicionar essa modificação! Principalmente se o seu inspetor de código nem fez alarme deste detalhe.
+
+De qualquer forma, a seguir veremos como é possível resolver esse detalhe do Java 8.
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/commit/4897317a347435344b43633f703eb18bf96b1dac
+
+@@03
+Utilizando o Java 8 no Android
+
+A equipe de desenvolvedores do Android disponibiliza uma técnica capaz de permitir que utilizemos alguns recursos do Java 8 mesmo tendo as limitações do uso de Java 7.
+Inclusive, há uma página dedicada a explicar esse tipo de abordagem no guia do usuário que vale a pena conferir. Vamos entender melhor como utilizar esta ferramenta a partir do desugar.
+
+Genericamente, nosso código-fonte apresenta a extensão padrão .java compilada pelo javac que gera arquivos .class e .dex.
+
+Este último é utilizado para projetos em Android que geram .apk. Ou seja, capazes de serem executados em seus próprios aplicativos.
+
+É o dex que apresenta restrições que exigem o uso exclusivo do Java 7 para ser gerado, sendo incompatível com as features mais atuais.
+
+É justamente o desugar que possibilita o uso dos novos recursos, transformando os arquivos .class em dex compatíveis através do processo de desugarate, atuando como pós-compilador de .java.
+
+Para isso, é necessária a adição do seguinte script em android no arquivo de build.gradle (app), desta forma:
+
+compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}COPIAR CÓDIGO
+Quando o fazemos, o sistema identifica a modificação e sugere a sincronização. Aceitamos clicando em "Sync Now" fazendo com que o código continue a compilar normalmente.
+
+Voltando a executar o Inspetor de Código, as questões de expressão lambda mostradas anteriormente são resolvidas.
+
+Esta é uma abordagem possível para a questão de Java apresentada.
+
+Também podemos manter a classe anônima suprimindo a ação ou ainda eliminar totalmente essa inspeção selecionando "Disable inspection" nos tópicos.
+
+Caso queira habilitar novamente, basta clicar no botão de ação do Inspetor chamado "Edit Settings", buscar por "lambda" na caixa de diálogo, selecionar a ação desejada na lista, e marcá-la positivamente.
+
+Todavia, recomendamos que use esta expressão a fim de simplificar seu código.
+
+@@04
+Suportando o Java 8 no projeto Android
+
+Projetos criados pelo AS 4.1 já mantém a configuração do Java 8, portanto, não há necessidade de ajustar o arquivo de build. Este exercício é opcional, pois talvez o seu inspetor de código não tenha alarmado sobre o uso da expressão lambda para substituir a implementação de classe anônima.
+Adicione o suporte das features do Java 8 adicionando o desugar no projeto. Para isso, dentro do script android contido no arquivo build.gradle do módulo app, adicione o seguinte script:
+
+compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}COPIAR CÓDIGO
+Então sincronize o Gradle com o projeto clicando na opção Sync Now que aparece na parte superior à direita todas as vezes que o arquivo de build é modificado.
+
+Após finalizar a sincronização, aceite as sugestões de substituição das classes anônimas para expressão lambda. Rode novamente o inspetor e veja se o tópico de Java é resolvido.
+
+Aproveite também e rode o App e confira se tudo funciona como o esperado.
+
+O resultado do inspetor não deve apresentar mais o tópico de Java, como também, o App deve funcionar normalmente.
+Porém, mantemos as seguintes modificações no projeto com base neste commit.
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/commit/2af2e5a6856b2a8f1e9c043592a84d662ab40b86
+
+@@05
+Para saber mais - Features do Java 8 no Android
+
+Como eu havia comentado, o suporte do Java 8 no Android permite o uso de algumas features, ou seja, é muito importante ter consciência das limitações ao considerar essa alternativa.
+Para isso, confira o post que publiquei no blog da Alura que mostra os pontos que precisamos ficar atentos, ou então, consulte a documentação.
+
+http://blog.alura.com.br/utilizando-features-do-java-8-no-android/?_gl=1*10b91or*_ga*MTgwMzIzMjk2Ni4xNjg4ODE5OTcz*_ga_1EPWSW3PCS*MTY5NDk3OTAwMi40Mi4xLjE2OTQ5ODA1ODguMC4wLjA.*_fplc*WWZvR2kyN1FJaDAzdmUxRzYlMkZDMFZQZXdqJTJGbnUxMnpnZFNIYiUyQkVOUHVIeVZoVlNqZEpPT1JKbWkyOFFNcW1xYVJnOWprNVJLNnc1bGVpaTNyOEVtaCUyRlZLWDl2V29MbiUyQnJvSTJLczE1QjB0T1Q1VkkzY2F4blJyb3psaWJkdyUzRCUzRA..
+
+https://developer.android.com/studio/write/java8-support
+
+@@06
+Delegando responsabilidade
+
+Um último passo no processo de refatoração diz respeito à Activity. Esta possui diversos vínculos para o aplicativo funcionar como esperado, fazendo com que aumente conforme elaboramos as features do nosso projeto. Por isso devemos utilizar técnicas que deleguem responsabilidades à outras classes e simplifiquem nosso código.
+Primeiro, vamos observar os membros que não necessariamente fazem uso dos métodos da Activity e podem ser migrados. Por exemplo, confirmaRemocao não possui uma chamada específica e podemos aplicar a técnica criando uma nova classe no pacote de ui.
+
+Como não há um padrão estabelecido, a chamamos de ListaAlunosView. Ela receberá o bloco de código recortado do exemplo dado.
+
+No momento de colar o comportamento, uma caixa de diálogo "Select Classes to Import" indica algumas dependências para serem importadas. Damos "OK" para depois resolver as questões de compilação que se apresentarão conforme avançamos, como a referência context, adapter e remove().
+
+De volta Activity, podemos migrar atualizaAlunos(), remove() e configuraAdapter().
+
+Para conseguir conceder acesso aos métodos migrados, devemos deixá-los como públicos na nova classe e criar uma instância na anterior.
+
+Vamos ao início da criação da Activity para inserir desta forma:
+
+public class ListaAlunosActivity extends AppCompactActivity {
+
+    private static final String TITULO_APPBAR = "Lista de alunos";
+    private final AlunoDAO dao = new AlunoDAO();
+    private ListaAlunosAdapter adapter;
+    private final ListaAlunosView listaAlunosView = new ListaAlunosView();
+    // código omitido
+}COPIAR CÓDIGO
+Realizamos a inserção da instância nos demais comportamentos migrados.
+
+Notamos também que não precisamos mais do adapter e do dao na Activity, podendo ambos serem eliminados desta. Otimizando os imports pelo atalho "Ctrl + Alt + O", diminuímos ainda mais as linhas de códigos.
+
+A seguir, resolveremos os detalhes de compilação resultantes da migração em ListaAlunosView.
+
+@@07
+Migrando código da Activity
+
+Delegue a responsabilidade de alguns comportamentos da ListaAlunosActivity para uma outra classe.
+Para isso, crie a classe ListaAlunosView no pacote ui e envie todos os comportamentos que não façam uso de métodos diretamente da Activity. Na aula migramos os seguintes comportamentos:
+
+confirmaRemocao();
+atualizaAlunos();
+remove();
+configuraAdapter().
+É importante ressaltar que esse não é um padrão adotado pela comunidade de desenvolvedores Android, é apenas uma boa prática de POO (Programação Orientada a Objetos) com o objetivo de melhorar a legibilidade do código e manutenção.
+Após migrar, torne todos os métodos públicos para que sejam acessíveis na Activity, então, logo depois de setar a view no onCreate() da ListaAlunosActivity, faça a instância da classe ListaAlunosView e atribua para um atributo da classe.
+
+Utilize o novo atributo para chamar os métodos que foram migrados e não estão mais compilando. Após realizar essa chamada, verifique apenas se o código na Activity volta a compilar.
+
+Não é necessário rodar o App, pois existe mais uma etapa a ser solucionada.
+
+Considerando que essa migração tiveram algumas mudanças pontuais no código, confira as alterações por meio deste commit.
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/commit/d067c91b9c5f7e0f65eeb5a83d2be0bd31bfdd63
+
+@@08
+Resolvendo os problemas de compilação
+
+Depois de migrar os comportamentos, resolveremos os problemas de compilação.
+Em ListaAlunosView.java, vamos utilizar a mesma técnica usada na personalização do adapter.
+
+Substitua this por context no AlertDialog, e use o atalho "Alt + Enter" para selecionar a opção "Create field 'context' in 'ListaAlunosView'" e criar um atributo que dá referência ao contexto.
+
+No trecho gerado, utilize o atalho novamente e selecione "Add constructor parameters" para abrir a caixa de diálogo "Change Signature".
+
+Cada membro do projeto que utilizar a nova classe deve ser refatorado para enviar o contexto, com conversão automática do Android Studio. Para isso, continue e clique em "Refactor" gerando:
+
+public class ListaAlunosView {
+
+    private Context context;
+
+    public ListaAlunosView(Context context) {
+        this.context = context;
+}COPIAR CÓDIGO
+Agora precisamos da referência de Adapter que faz a inicialização no configuraAdapter. Repetimos a operação realizada anteriormente.
+
+A mesma coisa deve ser feita com dao. Ainda, o context pode ser final por ser um atributo que não é modificado, finalizando dessa forma:
+
+public class ListaAlunosView {
+
+    private final ListaAlunosAdapter adapter;
+    private final AlunoDAO dao;
+    private final Context context;
+
+    public ListaAlunosView(Context context) {
+        this.context = context;
+        this.adapter = new ListAlunosAdapter(this.context);
+        this.dao = new AlunoDAO();
+    }
+    // código omitido    
+}COPIAR CÓDIGO
+Ao passar pelo código, há um destaque no modificador de acesso indicando que está atrelado ao Inspetor de Código, e sugere a alteração de público para privado por meio do atalho "Alt + Enter".
+
+De volta ao Activity, reparamos que o contexto continua apresentando problema. Para resolver, substitua por this.
+
+Execute o aplicativo para testar as ações.
+
+Portanto, o projeto se torna mais eficiente quando a Activity possui somente os comportamentos que lhe cabem, delegando funções às outras classes.
+
+@@09
+Finalizando a migração dos métodos
+
+Altere o código da classe ListaAlunosView com o objetivo de compilar o código e rodar o projeto sem nenhum problema.
+Para isso, primeiro resolva as dependências de cada um dos membros, como por exemplo, a referência de Context para o Dialog, o adapter e o DAO. Ambos podem serão atributos de classe para que sejam acessíveis por todos os membros.
+
+Em específico o Context é recebido via construtor por ser uma entidade do Android Framework. Ao aplicar essa modificação, lembre-se de enviar o Context como argumento da instância de ListaAlunosView na ListaAlunosActivity.
+
+Ao aplicar todas as modificações, execute novamente o App e veja se tudo funciona da maneira esperada.
+
+O App deve funcionar da mesma maneira, a diferença é que agora conseguimos delegar algumas responsabilidades que não precisavam ficar na Activity.
+Para verificar as modificações com precisão, veja o commit que mostra o código com as alterações.
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/commit/e62ac72732a7a9e7416e5413a79f4575d34940c8
+
+@@10
+Migrando projeto para AndroidX
+
+Desde sua criação, o Android Framework disponibiliza o Support Library como uma solução capaz de dar suporte às APIs mínimas configuradas no nosso projeto, viabilizando alguns recursos de versões mais atuais.
+Entretanto, está ocorrendo um processo de migração para a biblioteca do AndroidX. Nesta etapa, vamos abordar os motivos desta migração, como realizá-la e seus impactos.
+
+Algumas questões importantes presentes no Support Library são: a nomeação de seus pacotes pela versão correspondente em diante que pode confundir a consulta e o fato de estar bastante interligado à versão do SDK, engessando seu uso.
+
+A própria documentação apresenta uma nota explicativa sobre a migração que indica as soluções que o AndroidX possui, inclusive para as questões apresentadas.
+
+Os pacotes até a API 27 estão disponíveis no repositório da Google, enquanto projetos que utilizam as versões mais atuais já devem obter suporte da nova biblioteca, evitando diversos problemas que encaramos no desenvolvimento do nosso aplicativo.
+
+De volta ao menu de abertura do Android Studio atualizado para a versão 3.3, clique em "Open an existing Android Studio project" e busque nosso projeto "Agenda". Ao abrir, uma caixa de diálogo alerta sobre a atualização do Gradle Plugin que deve ser feita. Clique em "Update" para realizar a migração automaticamente.
+
+Repare que um download está sendo feito para a sincronização da ferramenta de Build. Terminado este, o primeiro passo é a configuração para o Android Support Library e a questão do versionamento que depende do SDK.
+
+Indo ao "Grade Scripts", selecione "build.gradle (Module:app)". Clique em "Ctrl + Shift + F12" para expandir a área dos códigos.
+
+Por exemplo, se alterarmos de "28" para "27" em compileSdkVersion e targetSdkVersion, observamos que em dependencies o sistema indica a necessidade de utilizar um Support Library compatível à versão que se pretende dar suporte, sendo necessária a alteração nessas sequências também. É esse tipo de situação que no AndroidX propõe evitar.
+
+Então, vamos realizar a migração nos arquivos de build.
+
+Há um recurso próprio do Android Studio que auxilia nesse processo. Use o atalho "Ctrl + Shift + A" para inserir a ação "Migrate to AndroidX". Ao confirmar, uma caixa de diálogo recomenda um backup do projeto antes de migrar. Concorde e prossiga para salvar na pasta "projeto", antes de "Agenda".
+
+Na sequência, o sistema apresenta uma preview da refatoração para o AndroidX. Caso queira realizar alterações mais para frente, clique com o botão direito do mouse nos trechos em destaque e selecione "exclude". No nosso caso, seguiremos apenas clicando em "Do Refactor".
+
+Finalizados os downloads, é importante observar os destaques apresentados das versões das bibliotecas que estão sendo utilizadas.
+
+O sistema sugere o uso de ferramentas alphas e betas em fase de testes para projetos em estudo. Porém, é mais garantido que usemos aquelas já em release para produção, evitando erros.
+
+Para isso, removemos os trechos -beta01' e -alpha4' dos destaques em app. O Android Studio busca a disponibilidade e atualização das versões ao sincronizar novamente e sugere algumas alterações. Vamos realizá-las.
+
+Sincronize outra vez.
+
+Observamos mudanças em outros arquivos como o caso do gradle.properties, o qual faz com que o AndroidX seja executado através de duas importantes instruções: android.enableJetifier=true e android.useAndroidX=true.
+
+Vamos executar o aplicativo no emulador para verificar seu funcionamento.
+
+Agora não temos mais uma biblioteca que depende do Android SDK, podendo utilizar recursos de diversas versões graças à migração. Para obter mais informações sobre o mapeamento desta, vá até a página "Android Jetpack" no portal de desenvolvedores Android.
+
+@@11
+O que aprendemos?
+
+Nesta aula, aprendemos a:
+Resolver o tópico Java;
+Adicionar o suporte as features do Java 8 no projeto Android;
+Refatorar a Activity delegando responsabilidade.
+
+@@12
+Projeto final
+
+Caso tiver alguma dúvida ou quiser consultar o projeto final, incluíndo o desafio, você pode baixá-lo a partir deste link.
+
+https://github.com/alura-cursos/fundamentos-android-parte-3/archive/aula-5.zip
+
+@@13
+Conclusão
+
+Finalizamos o curso sobre os Fundamentos de Android e você tem a base necessária para criar seu próprio aplicativo.
+Vamos rever o que foi passado e entender os próximos passos possíveis.
+
+Demos continuidade ao projeto de Agenda e aplicamos um layout personalizado nosAdapterView e ListView com a implementação do BaseAdapter.
+
+Aprendemos sobre a entidade estável Application e seus recursos para execução de comportamentos uma única vez sem comprometimentos com mudanças comuns, diferente da Activity.
+
+Implementamos o dialog e a classe AlertDialog que geram caixas de diálogos como a que confirma a remoção de itens da lista, aumentando a interação com o usuário. Essa técnica pode ser utilizada para qualquer outra mensagem relevante.
+
+Após nos dedicarmos bastante à visualidade, focamos também na qualidade do nosso projeto por meio do Inspetor de Código. Aprendemos que o IntelliJ IDEA nos fornece uma ferramenta de inspeção integrada ao Android Studio para resolver diversas questões apresentadas.
+
+Todavia, não é suficiente para toda a refatoração necessária. Para tanto, delegamos responsabilidades da Activity para outras classes como a ListaAlunosView.java, deixando-a mais simples e eficiente.
+
+Esses conceitos valem também para a linguagem Kotlin. Caso queira se aprofundar, sugerimos outros cursos aqui da Alura.
+
+Com essa experiência, esperamos que você possa elaborar seus próprios dispositivos Android da maneira que preferir. Sugerimos que realize as atividades a seguir e deixe seu feedback.
+
+@@14
+Próximos passos
+PRÓXIMA ATIVIDADE
+
+A proposta do curso é apresentar o conteúdo essencial para qualquer tipo de projeto Android. Porém, visando a evolução como desenvolvedor ou desenvolvedora Android, abaixo vou deixar uma lista com os próximos passos sugeridos como próximos passos:
+Criação de layouts com ConstraintLayout: neste curso aprendemos como podemos criar layouts mais complexos com o ConstraintLayout, uma ViewGroup muito poderosa capaz de flexibilizar a construção do layout via editor visual ou XML. Além disso, o ConstraintLayout melhora a performance na renderização de layouts complexos.
+Listas flexíveis e performáticas com RecyclerView: neste curso o foco é apresentar uma alternativa mais sofisticada de listagem no mundo Android, o RecyclerView. Por meio desta biblioteca somos capazes de criar listas com uma carga enorme de dados de uma maneira performática e flexível.
+Persistência de dados com Room: neste curso aprendemos como é possível implementar um CRUD de maneira persistence no App Android por meio de banco de dados interno, o SQLite. Porém, ao invés de usar a API nativa, utilizamos a abordagem da biblioteca Room que facilita a forma como trabalhamos com o SQLite.
+Desenvolvimento Android com Kotlin: neste curso criamos um novo projeto Android com Kotlin baseando-se em um projeto Java com o objetivo de apresentar as novidades e diferenças da linguagem em relação ao Java. No geral, a proposta desta linguagem é facilitar a implementação do projeto, reduzindo a verbosidade presente no Java.
+Testes automatizados e TDD: neste curso focamos em como o projeto pode ser testado de maneira automática em relação à regra de negócio. Por meio desta técnica além de melhorar a qualidade do projeto em geral, evitamos bugs inesperados.
+Além desses cursos, temos muitos outros cursos de Android na Alura. O principal motivo por sugerir esses é pelo fato de que eles exigem apenas o conteúdo fundamental, portanto, os demais, muito provavelmente vão exigir conhecimentos de um desses cursos :)
+
+Se tiver dúvida sobre orientações de próximos cursos, fique à vontade e entre em contato com a gente.
+
+https://cursos.alura.com.br/course/layout-android-1
+
+https://cursos.alura.com.br/course/recyclerview-listas-flexiveis-e-performaticas
+
+https://cursos.alura.com.br/course/android-room?preRequirementFrom=android-room-operacoes-assincronas
+
+https://cursos.alura.com.br/course/android-com-kotlin-parte-1
+
+https://cursos.alura.com.br/course/android-testes-automatizados-tdd
+
+https://cursos.alura.com.br/category/mobile#android
